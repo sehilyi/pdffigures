@@ -13,7 +13,7 @@
 #include "ExtractRegions.h"
 #include "ExtractFigures.h"
 
-const std::string version = "1.0.6";
+const std::string version = "1.0.7";
 
 void printUsage() {
   printf("Usage: figureextractor [flags] </path/to/pdf>\n");
@@ -35,6 +35,8 @@ void printUsage() {
          "prefix. Files are save to prefix.json\n");
   printf("-r, --reverse: Go through pages in reverse order\n");
   printf("-p, --page <page#>: Run only for the given page\n");
+  printf("-q, --quality <level(1~10)>: Change image resolution for a --save-color-images option."
+    "A defult quality level is 4 and a level can range from 1 to 10 (A higher level means higher resolution).\n");
   printf("-i, --text-as-image: Attempt to parse documents even if the "
          "document's text is encoded as part of an embedded image (usually "
          "caused by scanned documents that have been processed with OCR). "
@@ -56,7 +58,7 @@ int main(int argc, char **argv) {
   std::string jsonPrefix = "";
   std::string finalPrefix = "";
   const double resolution = 100;
-  const int resMultiply = 4; 
+  int resMultiply = 4; 
 
   const struct option long_options[] = {
       {"version", no_argument, NULL, 0},
@@ -68,6 +70,7 @@ int main(int argc, char **argv) {
       {"save-color-images", required_argument, NULL, 'c'},
       {"save-json", required_argument, NULL, 'j'},
       {"page", required_argument, NULL, 'p'},
+      {"quality", required_argument, NULL, 'q'},
       {"reverse", no_argument, &reverse, 'r'},
       {"text-as-image", no_argument, &textAsImage, true},
       {"save-mistakes", no_argument, &saveMistakes, true},
@@ -76,7 +79,7 @@ int main(int argc, char **argv) {
 
   int opt;
   int optionIndex;
-  while ((opt = getopt_long(argc, argv, "svfrmic:j:a:o:p:", long_options,
+  while ((opt = getopt_long(argc, argv, "svfrmic:j:a:o:p:q:", long_options,
                             &optionIndex)) != -1) {
     switch (opt) {
     case 0:
@@ -99,6 +102,9 @@ int main(int argc, char **argv) {
       break;
     case 'p':
       onlyPage = std::stoi(optarg);
+      break;
+    case 'q':
+      resMultiply = std::stoi(optarg);
       break;
     case 'o':
       imagePrefix = optarg;
@@ -140,6 +146,12 @@ int main(int argc, char **argv) {
       not verbose and imagePrefix.length() == 0 and jsonPrefix.length() == 0 and
       colorImagePrefix.length() == 0) {
     printf("No output requested\n");
+    printUsage();
+    return 1;
+  }
+
+  if (resMultiply < 1 or resMultiply > 10) {
+    printf("Quality out of range\n");
     printUsage();
     return 1;
   }
