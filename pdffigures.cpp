@@ -24,7 +24,7 @@ void printUsage() {
  but could not be extracted successfully\n");
   printf("-s, --show-steps: Display image processing steps\n");
   printf("-f, --show-final: Display pages with captions and images marked\n");
-  printf("-a, --save-final <prefix: Save page images with captions and images "
+  printf("-a, --save-final <prefix>: Save page images with captions and images "
          "marked to the given prefix. Files will be saved to "
          "prefix-<page#>.png\n");
   printf("-o, --save-figures <prefix>: Save images of detected figures to "
